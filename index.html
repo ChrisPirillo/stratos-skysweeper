@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en"><head><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-1CQ4D3VQ3L"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-1CQ4D3VQ3L');
+  </script>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>Stratos Skysweeper: Volumetric Cloud Renderer</title>
+
+<meta name="description" content="Create and customize stunning 3D volumetric clouds in real-time. A WebGL-powered simulation for interactive sky design and 4K wallpaper generation.">
+<meta name="keywords" content="WebGL, Volumetric Clouds, Raymarching, Sky Simulation, 3D Graphics, Procedural Generation, Visualizer, Wallpaper Maker, Atmosphere Renderer">
+<meta name="author" content="Chris Pirillo">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#0f172a">
+
+<meta property="og:site_name" content="Chris Pirillo's Arcade">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Stratos Skysweeper: Volumetric Cloud Renderer">
+<meta property="og:description" content="Create and customize stunning 3D volumetric clouds in real-time. A WebGL-powered simulation for interactive sky design and 4K wallpaper generation.">
+<meta property="og:url" content="https://pirillo.com/arcade/stratos-skysweeper.html">
+<meta property="og:image" content="https://pirillo.com/arcade/images/stratos-skysweeper.png">
+<meta property="og:image:alt" content="Stratos Skysweeper: Volumetric Cloud Renderer">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@ChrisPirillo">
+<meta name="twitter:creator" content="@ChrisPirillo">
+<meta name="twitter:title" content="Stratos Skysweeper: Volumetric Cloud Renderer">
+<meta name="twitter:description" content="Create and customize stunning 3D volumetric clouds in real-time. A WebGL-powered simulation for interactive sky design and 4K wallpaper generation.">
+<meta name="twitter:image" content="https://pirillo.com/arcade/images/stratos-skysweeper.png">
+<meta name="twitter:domain" content="pirillo.com">
+
+<link rel="canonical" href="https://pirillo.com/arcade/stratos-skysweeper.html">
+
+<script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Stratos Skysweeper: Volumetric Cloud Renderer",
+  "description": "Create and customize stunning 3D volumetric clouds in real-time. A WebGL-powered simulation for interactive sky design and 4K wallpaper generation.",
+  "keywords": "WebGL, Volumetric Clouds, Raymarching, Sky Simulation, 3D Graphics, Procedural Generation, Visualizer, Wallpaper Maker, Atmosphere Renderer",
+  "url": "https://pirillo.com/arcade/stratos-skysweeper.html",
+  "image": "https://pirillo.com/arcade/images/stratos-skysweeper.png",
+  "primaryImageOfPage": {
+    "@type": "ImageObject",
+    "url": "https://pirillo.com/arcade/images/stratos-skysweeper.png"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "Chris Pirillo",
+    "url": "https://pirillo.com",
+    "sameAs": [
+      "https://x.com/ChrisPirillo"
+    ]
+  },
+  "mainEntity": {
+    "name": "Stratos Skysweeper: Volumetric Cloud Renderer",
+    "description": "Create and customize stunning 3D volumetric clouds in real-time. A WebGL-powered simulation for interactive sky design and 4K wallpaper generation.",
+    "image": "https://pirillo.com/arcade/images/stratos-skysweeper.png",
+    "operatingSystem": "Web Browser",
+    "author": {
+      "@type": "Person",
+      "name": "Chris Pirillo"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock"
+    },
+    "@type": "WebApplication",
+    "applicationCategory": "Simulation"
+  }
+}</script>
+
+<meta charset="UTF-8">
+<style>:root { --bg-dark: #0f0f11; --bg-panel: rgba(20, 20, 23, 0.85); --accent: #dca54e; --text-main: #eeeeee; --text-dim: #888888; --border: rgba(255, 255, 255, 0.1); }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; user-select: none; -webkit-user-select: none; }
+canvas { display: block; width: 100%; height: 100%; opacity: 0; transition: opacity 0.6s ease-in-out; image-rendering: pixelated; }
+#ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
+.menu-btn { position: absolute; top: 20px; right: 20px; width: 44px; height: 44px; background: var(--bg-panel); backdrop-filter: blur(10px); border-radius: 8px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px; cursor: pointer; pointer-events: auto; border: 1px solid var(--border); transition: transform 0.2s; z-index: 20; }
+.menu-btn:active { transform: scale(0.95); }
+.menu-btn span { width: 20px; height: 2px; background: var(--text-main); border-radius: 2px; }
+#settings-panel { position: absolute; top: 0; right: 0; width: 360px; height: 100%; background: var(--bg-dark); border-left: 1px solid var(--border); transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); pointer-events: auto; display: flex; flex-direction: column; z-index: 30; box-shadow: -10px 0 30px rgba(0,0,0,0.5); }
+#settings-panel.open { transform: translateX(0); }
+@media (max-width: 600px) { #settings-panel { width: 100%; }
+}
+.panel-header { padding: 20px; height: 70px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg-dark); flex-shrink: 0; }
+.panel-title { color: var(--text-main); font-weight: 600; font-size: 18px; letter-spacing: 0.5px; }
+.close-btn { color: var(--text-dim); cursor: pointer; padding: 10px; font-size: 24px; line-height: 1; }
+.close-btn:hover { color: var(--text-main); }
+.panel-body { flex: 1; overflow-y: auto; padding: 20px; }
+.control-group { margin-bottom: 24px; }
+.control-group h3 { color: var(--accent); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 12px 0; opacity: 0.8; }
+.control-item { margin-bottom: 12px; display: flex; flex-direction: column; }
+.control-label { display: flex; justify-content: space-between; color: var(--text-dim); font-size: 13px; margin-bottom: 6px; }
+input[type="range"] { -webkit-appearance: none; width: 100%; background: transparent; cursor: pointer; }
+input[type="range"]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #333; border-radius: 2px; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: var(--text-main); margin-top: -6px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+input[type="color"] { -webkit-appearance: none; border: none; width: 100%; height: 30px; border-radius: 4px; background: none; cursor: pointer; }
+input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+input[type="color"]::-webkit-color-swatch { border: 1px solid var(--border); border-radius: 4px; }
+.panel-footer { padding: 20px; border-top: 1px solid var(--border); background: var(--bg-dark); display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; }
+.btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-main); padding: 12px; border-radius: 6px; font-size: 14px; cursor: pointer; transition: background 0.2s; text-align: center; }
+.btn:hover { background: rgba(255,255,255,0.1); }
+.btn.accent { background: var(--accent); color: #000; border: none; font-weight: 600; }
+.btn.accent:hover { opacity: 0.9; }
+.row { display: flex; gap: 10px; }
+.row .btn { flex: 1; }
+.info-icon { position: absolute; bottom: 20px; left: 20px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border); color: var(--text-dim); display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; pointer-events: auto; background: var(--bg-panel); backdrop-filter: blur(5px); z-index: 20; }
+.panel-info-icon { width: 24px; height: 24px; border: 1px solid var(--text-dim); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; margin-right: 15px; color: var(--text-dim); }
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 100; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+.modal-overlay.active { opacity: 1; pointer-events: auto; }
+.modal-content { background: var(--bg-dark); border: 1px solid var(--border); width: 90%; max-width: 400px; padding: 30px; border-radius: 12px; text-align: center; }
+.modal-content h2 { margin-top: 0; color: var(--accent); }
+.modal-content p { color: var(--text-dim); line-height: 1.5; font-size: 14px; }
+.modal-links { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+.modal-links a { color: var(--text-main); text-decoration: none; border-bottom: 1px solid var(--accent); padding-bottom: 2px; align-self: center; }
+.modal-close { margin-top: 20px; width: 100%; }
+.toggle-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--text-dim); }
+.switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 20px; }
+.slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; }
+input:checked + .slider { background-color: var(--accent); }
+input:checked + .slider:before { transform: translateX(20px); }
+#loading { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--text-dim); font-family: monospace; z-index: 0; }</style>
+</head>
+<body><h1 style="display: none;">Stratos Skysweeper: Volumetric Cloud Renderer</h1>
+
+    <div id="loading">GENERATING NOISE TEXTURES...</div>
+    <canvas id="glcanvas"></canvas>
+
+    <div id="ui-layer">
+        <div class="menu-btn" id="menu-trigger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+
+        <div id="settings-panel">
+            <div class="panel-header">
+                <div style="display:flex; align-items:center;">
+                    <div class="panel-info-icon" id="info-trigger">?</div>
+                    <span class="panel-title">SETTINGS</span>
+                </div>
+                <div class="close-btn" id="close-panel">×</div>
+            </div>
+            
+            <div class="panel-body" id="controls-container">
+            </div>
+
+            <div class="panel-footer">
+                <div class="toggle-row">
+                    <span>Auto-Advance</span>
+                    <label class="switch">
+                        <input type="checkbox" id="auto-advance-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <button class="btn accent" id="randomize-btn">Randomize</button>
+                <div class="row">
+                    <button class="btn" id="reset-btn">Reset</button>
+                    <button class="btn" id="export-img-btn">4K Wallpaper</button>
+                </div>
+                <div class="row">
+                    <button class="btn" id="export-json-btn">Export Settings</button>
+                    <button class="btn" onclick="document.getElementById('import-file').click()">Import</button>
+                    <input type="file" id="import-file" style="display:none" accept=".json">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="info-modal">
+        <div class="modal-content">
+            <h2>Volumetric Clouds</h2>
+            <p>A real-time raymarching experiment.</p>
+            <p>Left Click + Drag / Touch Drag to Rotate.<br>Scroll / Pinch to Zoom.<br>Click Empty Space / Double Tap to Randomize.</p>
+            <div class="modal-links">
+                <a href="https://pirillo.com/arcade/" target="_blank">More Apps</a>
+                <a href="https://chris.pirillo.com/" target="_blank">Follow Chris</a>
+                <a href="https://ctrlaltcreate.live/" target="_blank">Learn More</a>
+            </div>
+            <button class="btn modal-close" id="modal-close-btn">Close</button>
+        </div>
+    </div>
+
+<script>
+const vsSource = `#version 300 es
+in vec4 aVertexPosition;
+void main() {
+    gl_Position = aVertexPosition;
+}`;
+
+const fsSource = `#version 300 es
+precision highp float;
+
+uniform vec2 uResolution;
+uniform float uTime;
+uniform vec2 uMouse;
+uniform float uZoom;
+uniform sampler2D uChannel0;
+uniform sampler2D uChannel1;
+
+uniform vec3 uSkyTop;
+uniform vec3 uSkyBottom;
+uniform vec3 uSunColor;
+uniform vec3 uCloudColorBase;
+uniform vec3 uCloudColorDark;
+uniform vec3 uSunDir;
+uniform float uCloudScale;
+uniform float uCloudHeight;
+uniform float uCloudCoverage;  
+uniform float uDetailStrength; 
+uniform float uAbsorption;     
+uniform float uSunPower;
+uniform float uSunGlarePower;
+uniform float uWindSpeed;
+uniform int uQuality;
+
+out vec4 fragColor;
+
+float getValueNoise(in vec3 x) {
+    vec3 p = floor(x);
+    vec3 f = fract(x);
+    f = f * f * (3.0 - 2.0 * f);
+    vec2 uv = (p.xy + vec2(37.0, 239.0) * p.z) + f.xy;
+    vec2 rg = textureLod(uChannel0, (uv + 0.5) / 256.0, 0.0).yx;
+    return mix(rg.x, rg.y, f.z) * 2.0 - 1.0;
+}
+
+float fbm(vec3 p, int octaves) {
+    float f = 0.0;
+    float amp = 0.5;
+    vec3 pos = p;
+    for(int i = 0; i < 5; i++) {
+        if(i >= octaves) break;
+        f += amp * getValueNoise(pos);
+        pos = pos * 2.02;
+        amp *= 0.5;
+    }
+    return f;
+}
+
+float getCloudDensity(vec3 p, int octaves) {
+    vec3 q = p - vec3(0.0, 0.1, 1.0) * uTime * uWindSpeed;
+    float noiseVal = fbm(q, octaves);
+    float baseShape = 1.5 - p.y - uCloudHeight + uCloudCoverage; 
+    float detail = uDetailStrength * noiseVal;
+    return clamp(baseShape + detail, 0.0, 1.0);
+}
+
+float getLight(float density, vec3 pos, vec3 sunDir, int octaves) {
+    float densityTowardsSun = getCloudDensity((pos + sunDir * 0.3) * uCloudScale, octaves);
+    float absorption = (density - densityTowardsSun) / uAbsorption; 
+    return clamp(absorption, 0.0, 1.0); 
+}
+
+vec4 renderClouds(vec3 ro, vec3 rd, vec3 bgCol, ivec2 px) {
+    vec4 sum = vec4(0.0);
+    float t = 0.05 * texelFetch(uChannel1, px & 255, 0).x;
+    int mainSteps = 20 + uQuality * 20;
+    int lodSwitch = mainSteps / 2 + 10;
+    
+    for(int i = 0; i < mainSteps; i++) {
+        vec3 pos = ro + t * rd;
+        if(pos.y < -3.0 || pos.y > 2.0 || sum.a > 0.99) break;
+        int octaves = (i < lodSwitch) ? 5 : 3;
+        float density = getCloudDensity(pos * uCloudScale, octaves);
+        if(density > 0.01) {
+            float diff = getLight(density, pos, uSunDir, octaves);
+            vec3 ambient = uCloudColorDark;
+            vec3 diffuse = uCloudColorBase;
+            vec3 cloudAlbedo = mix(diffuse, ambient, density);
+            vec3 lightColor = uSunColor * diff + vec3(0.91, 0.98, 1.05);
+            cloudAlbedo *= lightColor;
+            cloudAlbedo = mix(cloudAlbedo, bgCol, 1.0 - exp(-0.003 * t * t));
+            float alpha = density * 0.4; 
+            vec4 col = vec4(cloudAlbedo, alpha);
+            col.rgb *= col.a;
+            sum += col * (1.0 - sum.a);
+        }
+        t += max(0.06, 0.05 * t);
+    }
+    return clamp(sum, 0.0, 1.0);
+}
+
+void main() {
+    vec2 uv = (2.0 * gl_FragCoord.xy - uResolution.xy) / uResolution.y;
+    vec2 mouse = uMouse.xy;
+    vec3 ro = 4.0 * uZoom * normalize(vec3(sin(3.0 * mouse.x), 0.8 * mouse.y, cos(3.0 * mouse.x))) - vec3(0.0, 0.1, 0.0);
+    vec3 ta = vec3(0.0, -1.0, 0.0);
+    vec3 cw = normalize(ta - ro);
+    vec3 cp = vec3(sin(0.07 * cos(0.25 * uTime)), cos(0.07 * cos(0.25 * uTime)), 0.0);
+    vec3 cu = normalize(cross(cw, cp));
+    vec3 cv = normalize(cross(cu, cw));
+    mat3 camMat = mat3(cu, cv, cw);
+    vec3 rd = camMat * normalize(vec3(uv, 1.5));
+    float sunDot = clamp(dot(uSunDir, rd), 0.0, 1.0);
+    vec3 col = uSkyBottom - rd.y * 0.2 * vec3(1.0, 0.5, 1.0) + 0.075;
+    col = mix(col, uSkyTop, max(0.0, rd.y));
+    col += 0.5 * uSunColor * pow(sunDot, uSunPower);
+    vec4 res = renderClouds(ro, rd, col, ivec2(gl_FragCoord.xy - 0.5));
+    col = col * (1.0 - res.w) + res.xyz;
+    col += vec3(0.2, 0.08, 0.04) * uSunGlarePower * pow(sunDot, 3.0);
+    fragColor = vec4(col, 1.0);
+}
+`;
+
+const AppState = {
+    params: {
+        skyTop: [153, 181, 191],
+        skyBottom: [153, 191, 204],
+        sunColor: [255, 153, 25],
+        cloudBase: [255, 242, 204],
+        cloudDark: [64, 77, 89],
+        cloudScale: 1.0,
+        coverage: 0.0,
+        detail: 1.75,
+        absorption: 0.6,
+        sunPower: 8.0,
+        sunGlare: 1.0,
+        windSpeed: 1.0,
+        quality: 2, 
+        resolution: 0.5, 
+        sunAzimuth: 225,
+        sunElevation: 30,
+        cloudHeight: 2.0
+    },
+    cam: {
+        x: 0.5,
+        y: 0.0, // Perfectly level pitch to stay in the heart of the mist
+        zoom: 1.0
+    },
+    autoAdvance: {
+        active: false,
+        intervalId: null,
+        duration: 5000
+    },
+    isMenuOpen: false
+};
+
+const DefaultParams = JSON.parse(JSON.stringify(AppState.params));
+const canvas = document.getElementById('glcanvas');
+const gl = canvas.getContext('webgl2');
+
+if (!gl) {
+    document.body.innerHTML = '<div style="color:white; padding:20px;">WebGL 2.0 not supported.</div>';
+    throw new Error("WebGL 2 not supported");
+}
+
+let program, uniformLocs = {}, startTime = Date.now();
+
+function createShader(gl, type, source) {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        console.error(gl.getShaderInfoLog(shader));
+        gl.deleteShader(shader);
+        return null;
+    }
+    return shader;
+}
+
+function initGL() {
+    const vs = createShader(gl, gl.VERTEX_SHADER, vsSource);
+    const fs = createShader(gl, gl.FRAGMENT_SHADER, fsSource);
+    program = gl.createProgram();
+    gl.attachShader(program, vs);
+    gl.attachShader(program, fs);
+    gl.linkProgram(program);
+    
+    const positions = new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]);
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+    const posLoc = gl.getAttribLocation(program, 'aVertexPosition');
+    gl.enableVertexAttribArray(posLoc);
+    gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+
+    gl.useProgram(program);
+    const names = [
+        'uResolution', 'uTime', 'uMouse', 'uZoom', 'uChannel0', 'uChannel1',
+        'uSkyTop', 'uSkyBottom', 'uSunColor', 'uCloudColorBase', 'uCloudColorDark',
+        'uCloudScale', 'uCloudCoverage', 'uDetailStrength', 'uAbsorption', 
+        'uSunPower', 'uSunGlarePower', 'uWindSpeed', 'uQuality', 'uSunDir', 'uCloudHeight'
+    ];
+    names.forEach(n => uniformLocs[n] = gl.getUniformLocation(program, n));
+}
+
+function generateTextures() {
+    const size0 = 256;
+    const data0 = new Uint8Array(size0 * size0 * 4);
+    for(let i=0; i<data0.length; i+=4) {
+        data0[i] = Math.floor(Math.random() * 255);
+        data0[i+1] = Math.floor(Math.random() * 255);
+        data0[i+3] = 255;
+    }
+    const tex0 = gl.createTexture();
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, tex0);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, size0, size0, 0, gl.RGBA, gl.UNSIGNED_BYTE, data0);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+
+    const size1 = 256;
+    const data1 = new Uint8Array(size1 * size1 * 4);
+    for(let i=0; i<data1.length; i+=4) {
+        data1[i] = Math.floor(Math.random() * 255);
+        data1[i+1] = data1[i];
+        data1[i+2] = data1[i];
+        data1[i+3] = 255;
+    }
+    const tex1 = gl.createTexture();
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, tex1);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, size1, size1, 0, gl.RGBA, gl.UNSIGNED_BYTE, data1);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+
+    document.getElementById('loading').style.display = 'none';
+    canvas.style.opacity = '1';
+}
+
+function getSunDirection(azimuthDeg, elevationDeg) {
+    const az = azimuthDeg * Math.PI / 180;
+    const el = elevationDeg * Math.PI / 180;
+    const y = Math.sin(el), h = Math.cos(el);
+    const x = h * Math.sin(az), z = h * Math.cos(az);
+    return [x, y, z];
+}
+
+function render() {
+    const dpr = window.devicePixelRatio || 1;
+    const resScale = AppState.params.resolution;
+    const displayWidth = canvas.clientWidth * dpr * resScale;
+    const displayHeight = canvas.clientHeight * dpr * resScale;
+
+    if (Math.abs(canvas.width - displayWidth) > 1 || Math.abs(canvas.height - displayHeight) > 1) {
+        canvas.width = displayWidth;
+        canvas.height = displayHeight;
+        gl.viewport(0, 0, canvas.width, canvas.height);
+    }
+
+    const time = (Date.now() - startTime) * 0.001;
+    gl.useProgram(program);
+    gl.uniform2f(uniformLocs.uResolution, canvas.width, canvas.height);
+    gl.uniform1f(uniformLocs.uTime, time);
+    gl.uniform2f(uniformLocs.uMouse, AppState.cam.x, AppState.cam.y);
+    gl.uniform1f(uniformLocs.uZoom, AppState.cam.zoom);
+    gl.uniform1i(uniformLocs.uChannel0, 0);
+    gl.uniform1i(uniformLocs.uChannel1, 1);
+
+    const p = AppState.params;
+    const c01 = (rgb) => [rgb[0]/255, rgb[1]/255, rgb[2]/255];
+    gl.uniform3fv(uniformLocs.uSkyTop, c01(p.skyTop));
+    gl.uniform3fv(uniformLocs.uSkyBottom, c01(p.skyBottom));
+    gl.uniform3fv(uniformLocs.uSunColor, c01(p.sunColor));
+    gl.uniform3fv(uniformLocs.uCloudColorBase, c01(p.cloudBase));
+    gl.uniform3fv(uniformLocs.uCloudColorDark, c01(p.cloudDark));
+    gl.uniform1f(uniformLocs.uCloudScale, p.cloudScale);
+    gl.uniform1f(uniformLocs.uCloudCoverage, p.coverage);
+    gl.uniform1f(uniformLocs.uDetailStrength, p.detail);
+    gl.uniform1f(uniformLocs.uAbsorption, p.absorption);
+    gl.uniform1f(uniformLocs.uCloudHeight, p.cloudHeight);
+    gl.uniform3fv(uniformLocs.uSunDir, getSunDirection(p.sunAzimuth, p.sunElevation));
+    gl.uniform1f(uniformLocs.uSunPower, p.sunPower);
+    gl.uniform1f(uniformLocs.uSunGlarePower, p.sunGlare);
+    gl.uniform1f(uniformLocs.uWindSpeed, p.windSpeed);
+    gl.uniform1i(uniformLocs.uQuality, p.quality);
+
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    requestAnimationFrame(render);
+}
+
+function createControl(id, label, type, config) {
+    const div = document.createElement('div');
+    div.className = 'control-item';
+    const labelDiv = document.createElement('div');
+    labelDiv.className = 'control-label';
+    labelDiv.innerHTML = `<span>${label}</span><span id="val-${id}"></span>`;
+    div.appendChild(labelDiv);
+    const input = document.createElement('input');
+    input.type = type;
+    if (type === 'range') {
+        input.min = config.min; input.max = config.max; input.step = config.step;
+        input.value = AppState.params[config.key];
+        input.oninput = (e) => {
+            AppState.params[config.key] = parseFloat(e.target.value);
+            document.getElementById(`val-${id}`).innerText = e.target.value;
+        };
+        setTimeout(()=> document.getElementById(`val-${id}`).innerText = input.value, 0);
+    } else if (type === 'color') {
+        const rgb = AppState.params[config.key];
+        input.value = "#" + ((1 << 24) + (rgb[0] << 16) + (rgb[1] << 8) + rgb[2]).toString(16).slice(1);
+        input.oninput = (e) => {
+            const h = e.target.value;
+            AppState.params[config.key] = [parseInt(h.substr(1,2),16), parseInt(h.substr(3,2),16), parseInt(h.substr(5,2),16)];
+        };
+    }
+    input.id = `input-${config.key}`;
+    div.appendChild(input);
+    return div;
+}
+
+function buildUI() {
+    const container = document.getElementById('controls-container');
+    const g0 = document.createElement('div'); g0.className = 'control-group';
+    g0.innerHTML = '<h3>Performance</h3>';
+    g0.appendChild(createControl('res', 'Resolution Scale', 'range', {key:'resolution', min:0.1, max:1.0, step:0.05}));
+    g0.appendChild(createControl('qual', 'Step Quality', 'range', {key:'quality', min:1, max:4, step:1})); 
+    container.appendChild(g0);
+    const g1 = document.createElement('div'); g1.className = 'control-group';
+    g1.innerHTML = '<h3>Atmosphere</h3>';
+    g1.appendChild(createControl('skyTop', 'Sky Top', 'color', {key:'skyTop'}));
+    g1.appendChild(createControl('skyBot', 'Sky Bottom', 'color', {key:'skyBottom'}));
+    g1.appendChild(createControl('sun', 'Sun Color', 'color', {key:'sunColor'}));
+    g1.appendChild(createControl('cBase', 'Cloud Base', 'color', {key:'cloudBase'}));
+    g1.appendChild(createControl('cDark', 'Cloud Shadow', 'color', {key:'cloudDark'}));
+    container.appendChild(g1);
+    const g3 = document.createElement('div'); g3.className = 'control-group';
+    g3.innerHTML = '<h3>Cloud Shape</h3>';
+    g3.appendChild(createControl('scale', 'Scale', 'range', {key:'cloudScale', min:0.5, max:2.0, step:0.01}));
+    g3.appendChild(createControl('cover', 'Coverage', 'range', {key:'coverage', min:-1.5, max:1.5, step:0.05}));
+    g3.appendChild(createControl('detail', 'Detail Strength', 'range', {key:'detail', min:1.75, max:3.0, step:0.05}));
+    g3.appendChild(createControl('height', 'Cloud Height', 'range', {key:'cloudHeight', min:0.5, max:4.0, step:0.1}));
+    container.appendChild(g3);
+    const g2 = document.createElement('div'); g2.className = 'control-group';
+    g2.innerHTML = '<h3>Dynamics</h3>';
+    g2.appendChild(createControl('wind', 'Wind Speed', 'range', {key:'windSpeed', min:0, max:5, step:0.1}));
+    g2.appendChild(createControl('absorb', 'Absorption', 'range', {key:'absorption', min:0.1, max:2.0, step:0.05}));
+    g2.appendChild(createControl('sunAz', 'Sun Azimuth', 'range', {key:'sunAzimuth', min:0, max:360, step:1}));
+    g2.appendChild(createControl('sunEl', 'Sun Elevation', 'range', {key:'sunElevation', min:-90, max:90, step:1}));
+    g2.appendChild(createControl('sunP', 'Sun Focus', 'range', {key:'sunPower', min:4, max:128, step:1}));
+    g2.appendChild(createControl('glare', 'Sun Glare', 'range', {key:'sunGlare', min:0, max:2, step:0.1}));
+    container.appendChild(g2);
+}
+
+function updateUI() {
+    for (const key in AppState.params) {
+        const input = document.getElementById(`input-${key}`);
+        if (!input) continue;
+        const val = AppState.params[key];
+        if (Array.isArray(val)) {
+            input.value = "#" + ((1 << 24) + (val[0] << 16) + (val[1] << 8) + val[2]).toString(16).slice(1);
+        } else {
+            input.value = val;
+            if(input.previousSibling && input.previousSibling.lastChild) input.previousSibling.lastChild.innerText = val;
+        }
+    }
+}
+
+function randomizeSettings() {
+    canvas.style.opacity = '0';
+    setTimeout(() => {
+        const p = AppState.params;
+        const ri = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
+        const rf = (min, max) => Math.random() * (max - min) + min;
+        p.skyTop = [ri(0,255), ri(0,255), ri(0,255)];
+        p.skyBottom = [ri(0,255), ri(0,255), ri(0,255)];
+        p.sunColor = [ri(200,255), ri(100,200), ri(0,100)];
+        p.cloudBase = [ri(200,255), ri(200,255), ri(200,255)];
+        p.cloudDark = [ri(0,100), ri(0,100), ri(0,100)];
+        p.windSpeed = rf(0, 3.0);
+        p.cloudScale = rf(0.7, 1.5);
+        p.coverage = rf(-0.5, 0.8);
+        p.detail = rf(1.75, 3.0);
+        p.absorption = rf(0.3, 1.0);
+        p.cloudHeight = rf(1.5, 3.0);
+        p.sunAzimuth = ri(0, 360);
+        p.sunElevation = ri(-10, 45);
+        p.sunPower = rf(4.0, 64.0);
+        p.sunGlare = rf(0.2, 1.5);
+        p.quality = ri(1, 3); 
+        updateUI();
+        canvas.style.opacity = '1';
+    }, 600);
+}
+
+function resetSettings() {
+    canvas.style.opacity = '0';
+    setTimeout(() => {
+        AppState.params = JSON.parse(JSON.stringify(DefaultParams));
+        updateUI();
+        canvas.style.opacity = '1';
+    }, 600);
+}
+
+function exportWallpaper() {
+    const w = 3840, h = 2160;
+    canvas.width = w; canvas.height = h;
+    gl.viewport(0, 0, w, h);
+    gl.useProgram(program);
+    gl.uniform2f(uniformLocs.uResolution, w, h);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    const link = document.createElement('a');
+    link.download = `Clouds_${Date.now()}.png`;
+    link.href = canvas.toDataURL('image/png', 1.0);
+    link.click();
+}
+
+function exportJSON() {
+    const data = JSON.stringify({ params: AppState.params, cam: AppState.cam }, null, 2);
+    const link = document.createElement('a');
+    link.download = `Clouds_Settings_${Date.now()}.json`;
+    link.href = URL.createObjectURL(new Blob([data], {type: 'application/json'}));
+    link.click();
+}
+
+function importJSON(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const data = JSON.parse(e.target.result);
+            if (data.params) {
+                AppState.params = data.params;
+                if (data.cam) AppState.cam = data.cam; 
+                updateUI();
+            }
+        } catch(err) { alert("Invalid Settings"); }
+    };
+    reader.readAsText(file);
+}
+
+let isDragging = false, dragStartX, dragStartY, lastX, lastY, lastDist = 0, lastTap = 0;
+
+function handleInteraction() {
+    const menuBtn = document.getElementById('menu-trigger'), panel = document.getElementById('settings-panel'), closeBtn = document.getElementById('close-panel');
+    const toggleMenu = (fc = false) => { panel.classList[fc ? 'remove' : 'toggle']('open'); AppState.isMenuOpen = panel.classList.contains('open'); };
+    menuBtn.onclick = (e) => { e.stopPropagation(); toggleMenu(); };
+    closeBtn.onclick = (e) => { e.stopPropagation(); toggleMenu(true); };
+    document.onclick = (e) => { if (AppState.isMenuOpen && !panel.contains(e.target) && !menuBtn.contains(e.target)) toggleMenu(true); };
+    panel.onclick = (e) => e.stopPropagation();
+
+    canvas.onmousedown = e => { if (e.button !== 0) return; isDragging = true; dragStartX = lastX = e.clientX; dragStartY = lastY = e.clientY; };
+    window.onmouseup = e => { if (!isDragging) return; isDragging = false; if (Math.hypot(e.clientX - dragStartX, e.clientY - dragStartY) < 5 && e.target === canvas && !AppState.isMenuOpen) randomizeSettings(); };
+    window.onmousemove = e => { if (!isDragging) return; AppState.cam.x += (e.clientX - lastX) * 0.005; AppState.cam.y = Math.max(-1.5, Math.min(1.5, AppState.cam.y + (e.clientY - lastY) * 0.005)); lastX = e.clientX; lastY = e.clientY; };
+    canvas.onwheel = e => { e.preventDefault(); AppState.cam.zoom = Math.max(0.1, Math.min(3.0, AppState.cam.zoom + e.deltaY * 0.001)); };
+
+    canvas.ontouchstart = e => {
+        if (e.touches.length === 1) {
+            isDragging = true; dragStartX = lastX = e.touches[0].clientX; dragStartY = lastY = e.touches[0].clientY;
+            const now = Date.now(); if (now - lastTap < 300) randomizeSettings(); lastTap = now;
+        } else if (e.touches.length === 2) {
+            isDragging = false; lastDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+        }
+    };
+    canvas.ontouchmove = e => {
+        e.preventDefault();
+        if (e.touches.length === 1 && isDragging) {
+            AppState.cam.x += (e.touches[0].clientX - lastX) * 0.005; AppState.cam.y = Math.max(-1.5, Math.min(1.5, AppState.cam.y + (e.touches[0].clientY - lastY) * 0.005));
+            lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
+        } else if (e.touches.length === 2) {
+            const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+            AppState.cam.zoom = Math.max(0.1, Math.min(3.0, AppState.cam.zoom - (d - lastDist) * 0.005)); lastDist = d;
+        }
+    };
+    
+    document.onkeydown = e => { if (e.key === 'Escape') { document.getElementById('info-modal').classList.remove('active'); toggleMenu(true); } };
+    document.getElementById('randomize-btn').onclick = randomizeSettings;
+    document.getElementById('reset-btn').onclick = resetSettings;
+    document.getElementById('export-img-btn').onclick = exportWallpaper;
+    document.getElementById('export-json-btn').onclick = exportJSON;
+    document.getElementById('import-file').onchange = importJSON;
+    document.getElementById('auto-advance-toggle').onchange = (e) => {
+        if (e.target.checked) AppState.autoAdvance.intervalId = setInterval(randomizeSettings, AppState.autoAdvance.duration);
+        else clearInterval(AppState.autoAdvance.intervalId);
+    };
+
+    const modal = document.getElementById('info-modal');
+    document.getElementById('info-trigger').onclick = (e) => { e.stopPropagation(); modal.classList.add('active'); };
+    document.getElementById('modal-close-btn').onclick = () => modal.classList.remove('active');
+    
+    randomizeSettings();
+}
+
+window.onload = () => { initGL(); generateTextures(); buildUI(); handleInteraction(); render(); };
+</script>
+
+</body></html>
